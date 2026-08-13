@@ -6,7 +6,7 @@
     <creationDate>2026-07</creationDate>
     <copyright>(C) 2026 Janich Rasmussen</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>1.0.0</version>
+    <version>1.2.0</version>
     <description>COM_FOOTPRINT_XML_DESCRIPTION</description>
     <namespace path="src">Devtools\Component\Footprint</namespace>
     <scriptfile>script.php</scriptfile>
