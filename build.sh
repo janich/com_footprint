@@ -7,21 +7,27 @@
 # beside it. This script assembles that layout in a temporary folder and
 # zips it, so the working tree never has to carry a second copy.
 #
-# Usage: ./build.sh [output-directory]      (default: ./dist)
+# Usage: ./build.sh [version] [output-directory]      (default: ./dist)
+#
+# The version is stamped into the package as it is built; release.sh passes
+# the one being tagged. Without it you get a development build carrying the
+# placeholder from the manifest, which is lower than any release — so a dev
+# site is always offered the newest real version.
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$ROOT/src"
 MANIFEST="$SRC/admin/footprint.xml"
-DIST="${1:-$ROOT/dist}"
+VERSION="${1:-}"
+DIST="${2:-$ROOT/dist}"
 
 [ -f "$MANIFEST" ] || { echo "Manifest not found: $MANIFEST" >&2; exit 1; }
 
-# Version straight from the manifest: one source of truth, and the same
-# value the component's own footer shows.
-VERSION="$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' "$MANIFEST" | head -1)"
-[ -n "$VERSION" ] || { echo "No <version> in $MANIFEST" >&2; exit 1; }
+if [ -z "$VERSION" ]; then
+    VERSION="$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' "$MANIFEST" | head -1)"
+    [ -n "$VERSION" ] || { echo "No <version> in $MANIFEST" >&2; exit 1; }
+fi
 
 PACKAGE="com_footprint-$VERSION.zip"
 BUILD="$(mktemp -d)"
@@ -38,6 +44,17 @@ cp -R "$SRC/admin" "$BUILD/admin"
 cp "$ROOT/LICENSE.txt" "$BUILD/LICENSE.txt"
 cp -R "$SRC/site" "$BUILD/site"
 cp -R "$SRC/media" "$BUILD/media"
+
+# Stamp the version into both copies of the manifest, never into the working
+# tree. Joomla reads the package root one to install and record the version;
+# the component folder one is what the running component parses for its own
+# footer and statistics, so they have to agree.
+for manifest in "$BUILD/footprint.xml" "$BUILD/admin/footprint.xml"; do
+    awk -v v="$VERSION" '
+        !done && /<version>/ { sub(/<version>[^<]*<\/version>/, "<version>" v "</version>"); done = 1 }
+        { print }
+    ' "$manifest" > "$manifest.tmp" && mv "$manifest.tmp" "$manifest"
+done
 
 # Never ship editor noise or a site's private overrides.
 find "$BUILD" \( -name '.DS_Store' -o -name '*.orig' -o -name '*.rej' -o -name 'paths.local.php' \) -delete

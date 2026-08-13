@@ -52,7 +52,7 @@ Site name, site URL, e-mail addresses, usernames, table names, file paths, and e
 ## Requirements
 
 - Joomla 6.x
-- PHP 8.1+
+- PHP 8.3+ (Joomla 6's own minimum)
 - MySQL / MariaDB
 
 
@@ -61,6 +61,10 @@ Site name, site URL, e-mail addresses, usernames, table names, file paths, and e
 Download the package from the releases page and install it through
 *System → Install → Extensions*, then open *Components → Footprint*.
 
+New versions are announced inside Joomla, under *System → Update → Extensions*,
+like any other extension. Installations of 1.0.0 predate the update server and
+need one manual update; after that they are notified automatically.
+
 
 ## Building from source
 
@@ -68,8 +72,9 @@ Download the package from the releases page and install it through
 ./build.sh
 ```
 
-Reads the version from the manifest and writes `dist/com_footprint-<version>.zip`
-with the layout Joomla expects. No compile step, no dependencies.
+Writes `dist/com_footprint-<version>.zip` with the layout Joomla expects. No
+compile step, no dependencies. Pass a version — `./build.sh 1.3.0` — to stamp
+one into the package; without it you get a development build.
 
 
 ## Translations
