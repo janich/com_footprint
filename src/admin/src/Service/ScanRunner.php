@@ -11,6 +11,7 @@ namespace Devtools\Component\Footprint\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
 
@@ -39,22 +40,63 @@ class ScanRunner
     }
 
     /**
-     * Resume the running scan or start a new one.
+     * Resume a scan we are already driving, or start a new one.
+     *
+     * Only one scan may walk the site at a time: two of them interleaving
+     * chunks would overwrite each other's working state and double-count
+     * the result. The running row is the lock. A caller that passes the id
+     * it was given is continuing its own chunk loop and is let through;
+     * anyone else is refused while that scan is alive, and takes it over
+     * once it has stopped saving chunks.
+     *
+     * @param   int  $resumeId  Scan id from a previous chunk, 0 to start.
      *
      * @return array{0: int, 1: array}  [scan id, working state]
+     *
+     * @throws ScanLockedException  When another scan is still running.
      */
-    public function startOrResume(): array
+    public function startOrResume(int $resumeId = 0): array
     {
         $running = $this->store->loadRunning();
 
-        if ($running) {
+        if ($running && $resumeId === (int) $running->id) {
             return [(int) $running->id, $running->workingData];
         }
 
+        if ($running && !$this->isAbandoned($running)) {
+            throw new ScanLockedException((string) $running->created);
+        }
+
+        // Nothing running, or nothing driving what is: createRunning()
+        // drops the stalled row and takes its place.
         $state              = $this->scanner->begin((int) $this->params->get('scan_depth', Defaults::SCAN_TREE_DEPTH));
         $state['elapsedMs'] = 0;
 
         return [$this->store->createRunning($state), $state];
+    }
+
+    /**
+     * The scan currently walking the site, or null when none is — a stalled
+     * row that nobody will finish does not count.
+     */
+    public function runningScan(): ?object
+    {
+        $running = $this->store->loadRunning();
+
+        return $running && !$this->isAbandoned($running) ? $running : null;
+    }
+
+    /**
+     * Whether a running scan has gone quiet: no chunk saved for longer than
+     * the lock window. Rows written before the heartbeat column existed fall
+     * back to their start time.
+     */
+    private function isAbandoned(object $running): bool
+    {
+        $minutes  = max(1, (int) $this->params->get('scan_lock_minutes', Defaults::SCAN_LOCK_MINUTES));
+        $lastSeen = (string) ($running->updated ?? '') ?: (string) $running->created;
+
+        return (new Date($lastSeen))->toUnix() < (new Date())->toUnix() - $minutes * 60;
     }
 
     /**
@@ -89,6 +131,8 @@ class ScanRunner
      * Run a complete scan in this request (cron usage).
      *
      * @return object  The finished scan row.
+     *
+     * @throws ScanLockedException  When another scan is still running.
      */
     public function runFull(): object
     {

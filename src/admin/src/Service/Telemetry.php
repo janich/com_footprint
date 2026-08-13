@@ -124,7 +124,7 @@ class Telemetry
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order([$this->db->quoteName('created') . ' DESC', $this->db->quoteName('id') . ' DESC']);
 
         return $this->db->setQuery($query, 0, 1)->loadObject() ?: null;
     }
@@ -270,7 +270,7 @@ class Telemetry
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order([$this->db->quoteName('created') . ' DESC', $this->db->quoteName('id') . ' DESC']);
 
         return array_map(
             static fn (string $created) => substr($created, 0, 10),

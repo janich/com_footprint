@@ -56,7 +56,7 @@ class ScanStore
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order($this->order());
 
         $rows = $this->db->setQuery($query, 0, 2)->loadObjectList();
 
@@ -85,7 +85,7 @@ class ScanStore
             ->where($this->db->quoteName('state') . ' = :state')
             ->where($this->db->quoteName('created') . ' >= ' . $this->db->quote($cutoff))
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order($this->order());
 
         return array_reverse($this->db->setQuery($query, 0, $limit)->loadObjectList());
     }
@@ -111,8 +111,10 @@ class ScanStore
     {
         $this->discardRunning();
 
+        $now = (new Date())->toSql();
         $row = (object) [
-            'created' => (new Date())->toSql(),
+            'created' => $now,
+            'updated' => $now,
             'state'   => self::STATE_RUNNING,
             'working' => json_encode($state),
         ];
@@ -122,10 +124,16 @@ class ScanStore
         return (int) $row->id;
     }
 
+    /**
+     * Persist chunk progress. `updated` doubles as the scan's heartbeat:
+     * a running row that has not been touched for a while is what lets a
+     * later caller tell an active scan from an abandoned one.
+     */
     public function saveRunning(int $id, array $state): void
     {
         $row = (object) [
             'id'      => $id,
+            'updated' => (new Date())->toSql(),
             'working' => json_encode($state),
         ];
 
@@ -134,7 +142,8 @@ class ScanStore
 
     /**
      * Promote a running scan to done: write summary columns, clear the
-     * working blob.
+     * working blob. `created` keeps the moment the scan started; `updated`
+     * records when it finished.
      *
      * @param   array  $columns  duration_ms, total_files, total_bytes,
      *                           db_tables, db_rows, db_data, db_index,
@@ -144,7 +153,7 @@ class ScanStore
     {
         $row = (object) array_merge($columns, [
             'id'      => $id,
-            'created' => (new Date())->toSql(),
+            'updated' => (new Date())->toSql(),
             'state'   => self::STATE_DONE,
             'working' => null,
         ]);
@@ -230,7 +239,7 @@ class ScanStore
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order($this->order());
 
         $ids     = array_map('intval', $this->db->setQuery($query)->loadColumn());
         $expired = [];
@@ -326,15 +335,37 @@ class ScanStore
         $tables = $this->db->getTableList();
         $prefix = $this->db->getPrefix();
 
-        if (\in_array($prefix . 'footprint_resolver', $tables, true)) {
+        if (!\in_array($prefix . 'footprint_resolver', $tables, true)) {
+            $sql = file_get_contents(JPATH_ADMINISTRATOR . '/components/com_footprint/sql/install.mysql.utf8.sql');
+
+            foreach (array_filter(array_map('trim', explode(';', (string) $sql))) as $statement) {
+                $this->db->setQuery($statement)->execute();
+            }
+
             return;
         }
 
-        $sql = file_get_contents(JPATH_ADMINISTRATOR . '/components/com_footprint/sql/install.mysql.utf8.sql');
-
-        foreach (array_filter(array_map('trim', explode(';', (string) $sql))) as $statement) {
-            $this->db->setQuery($statement)->execute();
+        // Tables predating the scan heartbeat: add the column rather than
+        // let every lock check fall back to the creation time.
+        if (!isset($this->db->getTableColumns('#__footprint_scans', false)['updated'])) {
+            $this->db->setQuery(
+                'ALTER TABLE ' . $this->db->quoteName('#__footprint_scans')
+                . ' ADD COLUMN ' . $this->db->quoteName('updated') . ' DATETIME NULL'
+                . ' AFTER ' . $this->db->quoteName('created')
+            )->execute();
         }
+    }
+
+    /**
+     * Newest first. `created` is the scan's own clock and is never rewritten,
+     * so it survives a database restore or migration that renumbers rows;
+     * `id` only breaks ties between scans in the same second.
+     *
+     * @return string[]
+     */
+    private function order(): array
+    {
+        return [$this->db->quoteName('created') . ' DESC', $this->db->quoteName('id') . ' DESC'];
     }
 
     private function loadByState(string $state): ?object
@@ -344,7 +375,7 @@ class ScanStore
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order($this->order());
 
         return $this->db->setQuery($query, 0, 1)->loadObject();
     }

@@ -26,6 +26,9 @@ class HtmlView extends BaseHtmlView
     /** @var object|null  Previous completed scan row (for deltas). */
     protected $previous;
 
+    /** @var object|null  Scan currently walking the site, if any. */
+    protected $running;
+
     /** @var bool */
     protected $isStale = true;
 
@@ -60,6 +63,7 @@ class HtmlView extends BaseHtmlView
 
         $this->params    = ComponentHelper::getParams('com_footprint');
         $this->scan      = $model->getScan();
+        $this->running   = $model->getRunning();
         $this->isStale   = $model->isStale($this->scan);
         $this->history   = $model->getHistory();
         $this->topGroups = $model->getTopGroups($this->scan);

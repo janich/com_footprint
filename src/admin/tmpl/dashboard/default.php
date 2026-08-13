@@ -122,13 +122,19 @@ $deltaRows  = $this->previous ? (int) $this->scan->db_rows - (int) $this->previo
 <div class="com-footprint">
     <?php echo footprintNav('dashboard'); ?>
 
+    <?php if ($this->running) : ?>
+        <div class="alert alert-info">
+            <?php echo Text::sprintf('COM_FOOTPRINT_SCAN_RUNNING', HTMLHelper::_('date', $this->running->created, Text::_('DATE_FORMAT_LC5'))); ?>
+        </div>
+    <?php endif; ?>
+
     <?php if (!$this->scan) : ?>
         <div class="card">
             <div class="card-body text-center py-5">
                 <span class="fas fa-weight-hanging fa-3x mb-3 text-muted" aria-hidden="true"></span>
                 <h2><?php echo Text::_('COM_FOOTPRINT_DASHBOARD_NO_SCAN_TITLE'); ?></h2>
                 <p class="text-muted"><?php echo Text::_('COM_FOOTPRINT_DASHBOARD_NO_SCAN_DESC'); ?></p>
-                <button type="button" class="btn btn-primary" data-footprint-scan>
+                <button type="button" class="btn btn-primary" data-footprint-scan<?php echo $this->running ? ' disabled' : ''; ?>>
                     <span class="fas fa-play" aria-hidden="true"></span>
                     <?php echo Text::_('COM_FOOTPRINT_SCAN_RUN_FIRST'); ?>
                 </button>
@@ -177,7 +183,7 @@ $deltaRows  = $this->previous ? (int) $this->scan->db_rows - (int) $this->previo
                 <?php echo Text::sprintf('COM_FOOTPRINT_SCAN_AGE', HTMLHelper::_('date', $this->scan->created, Text::_('DATE_FORMAT_LC5'))); ?>
                 · <?php echo Text::sprintf('COM_FOOTPRINT_SCAN_DURATION', number_format($this->scan->duration_ms / 1000, 1)); ?>
             </span>
-            <button type="button" class="btn btn-primary btn-sm" data-footprint-scan>
+            <button type="button" class="btn btn-primary btn-sm" data-footprint-scan<?php echo $this->running ? ' disabled' : ''; ?>>
                 <span class="fas fa-rotate" aria-hidden="true"></span>
                 <?php echo Text::_('COM_FOOTPRINT_SCAN_RERUN'); ?>
             </button>
