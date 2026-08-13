@@ -6,7 +6,14 @@
     <creationDate>2026-07</creationDate>
     <copyright>(C) 2026 Janich Rasmussen</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>1.2.0</version>
+    <!--
+        Placeholder. The real version is stamped in by build.sh from the git
+        tag being released, so the tag is the only place a version is decided
+        and nothing here has to be remembered or bumped. A build made without
+        a version keeps this one, which is lower than every release — so a
+        development install is always offered the newest published version.
+    -->
+    <version>0.0.0-dev</version>
     <description>COM_FOOTPRINT_XML_DESCRIPTION</description>
     <namespace path="src">Devtools\Component\Footprint</namespace>
     <scriptfile>script.php</scriptfile>
@@ -20,6 +27,21 @@
             <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
         </sql>
     </uninstall>
+    <!--
+        Schema migrations. Each file is named after the version that
+        introduced it. On update Joomla runs the files newer than the version
+        recorded in #__schemas, in version order, recording each as it goes.
+        A fresh install runs none of them: it gets the current schema from
+        sql/install.mysql.utf8.sql and Joomla stamps the newest filename as
+        the starting point. So the install file and the migrations must
+        describe the same schema by two different routes — change one and
+        the other has to follow.
+    -->
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates/mysql</schemapath>
+        </schemas>
+    </update>
     <files folder="site">
         <folder>services</folder>
         <folder>src</folder>
@@ -51,4 +73,15 @@
         <folder>js</folder>
         <filename>joomla.asset.json</filename>
     </media>
+    <!--
+        Where Joomla looks for new versions. The URL is written into the
+        site's #__update_sites table on install and again on update, and
+        Joomla has no clean way to move an existing site to a new address —
+        a changed URL registers a second one alongside the old. Treat it as
+        permanent. The file is generated and committed to main by the release
+        workflow, so it always describes the newest published release.
+    -->
+    <updateservers>
+        <server type="extension" name="Footprint" priority="1">https://raw.githubusercontent.com/janich/com_footprint/main/updates.xml</server>
+    </updateservers>
 </extension>
