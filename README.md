@@ -1,27 +1,52 @@
 # Footprint
 
-> **See what your Joomla extensions really weigh on your site.**
+> **See what your Joomla extensions really weigh on your site..!**
 
-Footprint is an administrator component for Joomla 6 that shows which
-extensions, folders and database tables consume the most disk space, files
-and rows — with sortable lists, charts and drilldowns.
-
-![screenshot coming soon]()
+![The Footprint dashboard: disk and database totals with 30-day trends, growth chart, biggest movers, and usage per extension](docs/dashboard.png)
 
 
-## Features
+## What it does
 
-- **Dashboard** — unified overview: disk footprint vs database footprint.
-- **Files** — raw folder listing (container-aware depth, browsable with
-  breadcrumbs) or grouped by installed extension, with standout folders
-  (e.g. backup directories) and an "Other" catch-all.
-- **Database** — raw table listing or grouped by extension via an automatic
-  3-layer resolver (SQL manifest parsing → name heuristic → Joomla Core →
-  Other).
-- Chunked AJAX scanning with cached results — nothing rescans without an
-  explicit click.
-- Bundled Chart.js, no CDN calls.
-- Translated: English, Danish, German, Swedish, Norwegian (Bokmål), Finnish.
+You just found a **Joomla 6** administrator component that answers a question the CMS never does: \
+*Where did all the space go?* 
+
+Footprint puts the `#__extensions` table at the centre and shows, per extension, how much disk **and** how much database it is responsible for.
+
+
+## Scanning
+
+Scans run in chunks over AJAX with live progress, so a large site never hits `max_execution_time`. Results are cached.
+
+For unattended scans, the component options expose a keyed URL you can paste
+into cron:
+
+```
+https://example.com/index.php?option=com_footprint&task=cron.run&key=<secret>
+```
+
+The key can be regenerated from the component parameters page at any time.
+
+
+## Usage statistics (opt-in)
+
+You can help develop this component by sending in anonymous usage statistics. It is **off until you say yes**, a *no* is remembered permanently, and the setting lives in *Configuration → Statistics*.
+
+Nothing is sent before consent. When enabled, one request goes out after a scan, at most once every 7 day.
+
+**What is sent**
+
+- A random install id
+- Whether the site looks `local`, `private` or `public` — derived from the URL
+- Versions: Footprint, Joomla, PHP, database driver and version
+- Diagnostic settings only: `debug`, `debug_lang`, `error_reporting`,
+  `log_deprecated`, `offline`, `sef`, `caching`, `cache_handler`,
+  `session_handler`, `gzip`
+- Installed extensions: element, type, version and enabled
+- The sizes footprint / measures: filecount, bytes, groups, tables, rowcount, data/index size, scan duration, and the dates of the last three scans
+
+**What is never sent**
+
+Site name, site URL, e-mail addresses, usernames, table names, file paths, and every credential or path from `configuration.php`.
 
 
 ## Requirements
@@ -33,15 +58,25 @@ and rows — with sortable lists, charts and drilldowns.
 
 ## Installation
 
-Install the release zip via *System → Install → Extensions*, then open
-*Components → Footprint*.
+Download the package from the releases page and install it through
+*System → Install → Extensions*, then open *Components → Footprint*.
 
 
-## Development
+## Building from source
 
-The installable source lives at [https://github.com/janich/com_footprint](https://github.com/janich/com_footprint).
+```bash
+./build.sh
+```
+
+Reads the version from the manifest and writes `dist/com_footprint-<version>.zip`
+with the layout Joomla expects. No compile step, no dependencies.
 
 
-## License
+## Translations
+
+English, Danish, German, Swedish, Norwegian (Bokmål) and Finnish — complete, and shipped inside the component rather than in Joomla's shared language folders.
+
+
+## Licence
 
 GPL v2 or later. (C) 2026 Janich Rasmussen — <https://github.com/janich/com_footprint>

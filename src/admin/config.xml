@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config addfieldprefix="Devtools\Component\Footprint\Administrator\Field">
+    <fieldset name="general" label="COM_FOOTPRINT_CONFIG_GENERAL_LABEL">
+        <field
+            name="chart_top_n"
+            type="list"
+            label="COM_FOOTPRINT_CONFIG_CHART_TOP_N_LABEL"
+            description="COM_FOOTPRINT_CONFIG_CHART_TOP_N_DESC"
+            default="10"
+            validate="options"
+        >
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+        </field>
+        <field
+            name="doughnut_top_n"
+            type="list"
+            label="COM_FOOTPRINT_CONFIG_DOUGHNUT_TOP_N_LABEL"
+            description="COM_FOOTPRINT_CONFIG_DOUGHNUT_TOP_N_DESC"
+            default="7"
+            validate="options"
+        >
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+        </field>
+    </fieldset>
+    <fieldset name="history" label="COM_FOOTPRINT_CONFIG_HISTORY_LABEL">
+        <field
+            name="show_history"
+            type="radio"
+            layout="joomla.form.field.radio.switcher"
+            label="COM_FOOTPRINT_CONFIG_SHOW_HISTORY_LABEL"
+            description="COM_FOOTPRINT_CONFIG_SHOW_HISTORY_DESC"
+            default="0"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field
+            name="history_days"
+            type="number"
+            label="COM_FOOTPRINT_CONFIG_HISTORY_DAYS_LABEL"
+            description="COM_FOOTPRINT_CONFIG_HISTORY_DAYS_DESC"
+            default="90"
+            min="1"
+            step="1"
+            validate="number"
+        />
+        <field
+            name="history_max"
+            type="number"
+            label="COM_FOOTPRINT_CONFIG_HISTORY_MAX_LABEL"
+            description="COM_FOOTPRINT_CONFIG_HISTORY_MAX_DESC"
+            default="100"
+            min="1"
+            step="1"
+            validate="number"
+        />
+    </fieldset>
+    <fieldset name="database" label="COM_FOOTPRINT_CONFIG_DATABASE_LABEL">
+        <field
+            name="show_index"
+            type="radio"
+            layout="joomla.form.field.radio.switcher"
+            label="COM_FOOTPRINT_CONFIG_SHOW_INDEX_LABEL"
+            description="COM_FOOTPRINT_CONFIG_SHOW_INDEX_DESC"
+            default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field
+            name="db_display"
+            type="list"
+            label="COM_FOOTPRINT_CONFIG_DB_DISPLAY_LABEL"
+            description="COM_FOOTPRINT_CONFIG_DB_DISPLAY_DESC"
+            default="totals"
+            showon="show_index:1"
+        >
+            <option value="totals">COM_FOOTPRINT_CONFIG_DB_DISPLAY_TOTALS</option>
+            <option value="split">COM_FOOTPRINT_CONFIG_DB_DISPLAY_SPLIT</option>
+        </field>
+    </fieldset>
+    <fieldset name="stats" label="COM_FOOTPRINT_CONFIG_STATS_LABEL">
+        <field
+            name="stats_note"
+            type="note"
+            description="COM_FOOTPRINT_CONFIG_STATS_NOTE"
+        />
+        <field
+            name="stats_consent"
+            type="list"
+            label="COM_FOOTPRINT_CONFIG_STATS_CONSENT_LABEL"
+            description="COM_FOOTPRINT_CONFIG_STATS_CONSENT_DESC"
+            default=""
+        >
+            <option value="">COM_FOOTPRINT_CONFIG_STATS_UNASKED</option>
+            <option value="yes">JYES</option>
+            <option value="no">JNO</option>
+        </field>
+    </fieldset>
+    <fieldset name="cron" label="COM_FOOTPRINT_CONFIG_CRON_LABEL">
+        <field
+            name="cron_note"
+            type="note"
+            description="COM_FOOTPRINT_CONFIG_CRON_NOTE"
+        />
+        <field
+            name="cron_link"
+            type="cronlink"
+            label="COM_FOOTPRINT_CONFIG_CRONLINK_LABEL"
+            description="COM_FOOTPRINT_CONFIG_CRONLINK_DESC"
+        />
+        <!-- Export link exposure is provisional; delete this one field (and
+             its two language strings) to stop advertising the endpoint. -->
+<!--        <field-->
+<!--            name="export_link"-->
+<!--            type="cronlink"-->
+<!--            endpoint="export.run"-->
+<!--            label="COM_FOOTPRINT_CONFIG_EXPORTLINK_LABEL"-->
+<!--            description="COM_FOOTPRINT_CONFIG_EXPORTLINK_DESC"-->
+<!--        />-->
+
+    </fieldset>
+    <fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL">
+        <field
+            name="rules"
+            type="rules"
+            label="JCONFIG_PERMISSIONS_LABEL"
+            filter="rules"
+            component="com_footprint"
+            section="component"
+        />
+    </fieldset>
+</config>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" method="upgrade">
+    <name>COM_FOOTPRINT</name>
+    <author>Janich Rasmussen</author>
+    <authorUrl>https://github.com/janich/com_footprint</authorUrl>
+    <creationDate>2026-07</creationDate>
+    <copyright>(C) 2026 Janich Rasmussen</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <version>1.0.0</version>
+    <description>COM_FOOTPRINT_XML_DESCRIPTION</description>
+    <namespace path="src">Devtools\Component\Footprint</namespace>
+    <scriptfile>script.php</scriptfile>
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>
+    <files folder="site">
+        <folder>services</folder>
+        <folder>src</folder>
+    </files>
+    <administration>
+        <menu img="class:fas fa-weight-hanging" view="dashboard">COM_FOOTPRINT</menu>
+        <submenu>
+            <menu link="option=com_footprint&amp;view=dashboard" view="dashboard" img="class:fas fa-gauge-high">COM_FOOTPRINT_NAV_DASHBOARD</menu>
+            <menu link="option=com_footprint&amp;view=extensions" view="extensions" img="class:fas fa-puzzle-piece">COM_FOOTPRINT_NAV_EXTENSIONS</menu>
+            <menu link="option=com_footprint&amp;view=folders" view="folders" img="class:fas fa-folder-tree">COM_FOOTPRINT_NAV_FOLDERS</menu>
+            <menu link="option=com_footprint&amp;view=tables" view="tables" img="class:fas fa-database">COM_FOOTPRINT_NAV_TABLES</menu>
+        </submenu>
+        <files folder="admin">
+            <folder>config</folder>
+            <folder>language</folder>
+            <folder>services</folder>
+            <folder>sql</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <filename>footprint.xml</filename>
+            <filename>LICENSE.txt</filename>
+            <filename>script.php</filename>
+        </files>
+    </administration>
+    <media destination="com_footprint" folder="media">
+        <folder>css</folder>
+        <folder>js</folder>
+        <filename>joomla.asset.json</filename>
+    </media>
+</extension>

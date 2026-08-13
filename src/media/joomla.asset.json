@@ -1,0 +1,34 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "com_footprint",
+  "version": "1.0.0",
+  "description": "Assets for the Footprint component.",
+  "license": "GPL-2.0-or-later",
+  "assets": [
+    {
+      "name": "com_footprint.footprint",
+      "type": "style",
+      "uri": "com_footprint/footprint.css"
+    },
+    {
+      "name": "com_footprint.chartjs",
+      "type": "script",
+      "uri": "com_footprint/chart.umd.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_footprint.footprint",
+      "type": "script",
+      "uri": "com_footprint/footprint.js",
+      "attributes": {
+        "defer": true
+      },
+      "dependencies": [
+        "core",
+        "com_footprint.chartjs"
+      ]
+    }
+  ]
+}
