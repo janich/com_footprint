@@ -1,0 +1,13 @@
+--
+-- Footprint 1.2.0 — scan heartbeat.
+--
+-- `updated` is touched every time a scan saves a chunk, which is what lets a
+-- later caller tell a live scan from an abandoned one. `created` stops being
+-- rewritten on finalize and now means what it says: when the scan started.
+--
+-- Development sites running from a bind mount never install a package, so
+-- they pick the column up at runtime from ScanStore::ensureTables() instead
+-- and already have it by the time this runs. Hence the CAN FAIL marker,
+-- which MySQL needs anyway: it has no ADD COLUMN IF NOT EXISTS.
+--
+ALTER TABLE `#__footprint_scans` ADD COLUMN `updated` DATETIME NULL AFTER `created` /** CAN FAIL **/;

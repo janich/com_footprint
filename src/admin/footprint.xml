@@ -20,6 +20,21 @@
             <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
         </sql>
     </uninstall>
+    <!--
+        Schema migrations. Each file is named after the version that
+        introduced it. On update Joomla runs the files newer than the version
+        recorded in #__schemas, in version order, recording each as it goes.
+        A fresh install runs none of them: it gets the current schema from
+        sql/install.mysql.utf8.sql and Joomla stamps the newest filename as
+        the starting point. So the install file and the migrations must
+        describe the same schema by two different routes — change one and
+        the other has to follow.
+    -->
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates/mysql</schemapath>
+        </schemas>
+    </update>
     <files folder="site">
         <folder>services</folder>
         <folder>src</folder>
