@@ -85,3 +85,4 @@ English, Danish, German, Swedish, Norwegian (Bokmål) and Finnish — complete, 
 ## Licence
 
 GPL v2 or later. (C) 2026 Janich Rasmussen — <https://github.com/janich/com_footprint>
+
