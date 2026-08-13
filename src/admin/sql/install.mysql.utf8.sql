@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `#__footprint_scans` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `created` DATETIME NOT NULL,
+    `updated` DATETIME NULL,
     `state` VARCHAR(20) NOT NULL DEFAULT 'done',
     `duration_ms` INT UNSIGNED NOT NULL DEFAULT 0,
     `total_files` INT UNSIGNED NOT NULL DEFAULT 0,

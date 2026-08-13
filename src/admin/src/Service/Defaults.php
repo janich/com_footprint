@@ -37,6 +37,16 @@ final class Defaults
     public const SCAN_TREE_DEPTH = 4;
 
     /**
+     * Minutes a running scan may go without saving a chunk before it is
+     * treated as abandoned and may be taken over. A live scan touches its
+     * row roughly once a second, so this only ever trips on a scan whose
+     * driver died — a closed browser tab, a fatal error, a killed cron job.
+     *
+     * Hidden param override: "scan_lock_minutes".
+     */
+    public const SCAN_LOCK_MINUTES = 5;
+
+    /**
      * Where opt-in usage statistics are sent.
      *
      * Hidden param override: "stats_endpoint" (for testing against a local

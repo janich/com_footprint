@@ -11,6 +11,7 @@ namespace Devtools\Component\Footprint\Administrator\Model;
 \defined('_JEXEC') or die;
 
 use Devtools\Component\Footprint\Administrator\Service\Labels;
+use Devtools\Component\Footprint\Administrator\Service\ScanRunner;
 use Devtools\Component\Footprint\Administrator\Service\ScanStore;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
@@ -29,6 +30,15 @@ class DashboardModel extends BaseDatabaseModel
     public function getScan(): ?object
     {
         return $this->getStore()->loadLatest();
+    }
+
+    /**
+     * The scan currently walking the site, or null when none is. Drives the
+     * dashboard notice: starting a second scan would only be refused.
+     */
+    public function getRunning(): ?object
+    {
+        return (new ScanRunner(Factory::getContainer()->get(DatabaseInterface::class)))->runningScan();
     }
 
     public function isStale(?object $scan): bool

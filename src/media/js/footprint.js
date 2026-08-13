@@ -459,21 +459,31 @@
     try {
       let done = false;
       let guard = 2000;
+      // Empty on the first call: that is what marks it a fresh start rather
+      // than a continuation, and only a fresh start can hit the scan lock.
+      let scanId = 0;
 
       while (!done && guard-- > 0) {
-        const response = await fetch(options.scanUrl, {
+        const response = await fetch(scanId ? `${options.scanUrl}&id=${scanId}` : options.scanUrl, {
           method: 'POST',
           headers: { 'X-Requested-With': 'XMLHttpRequest' },
         });
 
-        if (!response.ok) {
-          throw new Error(`Scan request failed: ${response.status}`);
+        const json = await response.json().catch(() => ({}));
+
+        // A refused scan explains itself; keep that message rather than
+        // replacing it with a bare status code.
+        if (!response.ok || json.success === false) {
+          throw new Error(json.message || `Scan request failed: ${response.status}`);
         }
 
-        const json = await response.json();
         const data = json.data || {};
 
         done = !!data.done;
+
+        if (data.id) {
+          scanId = data.id;
+        }
 
         if (typeof data.progress === 'number') {
           target = Math.min(100, data.progress * 100);

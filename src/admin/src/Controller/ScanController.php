@@ -46,14 +46,19 @@ class ScanController extends BaseController
 
             @set_time_limit(60);
 
+            // The client echoes back the id it was given for the previous
+            // chunk; without one this is a fresh start, which is refused
+            // while another scan is still walking the site.
             $runner       = new ScanRunner(Factory::getContainer()->get(DatabaseInterface::class));
-            [$id, $state] = $runner->startOrResume();
+            [$id, $state] = $runner->startOrResume($this->input->getInt('id', 0));
             $result       = $runner->stepChunk($id, $state, self::TIME_BUDGET);
 
-            echo new JsonResponse($result);
+            echo new JsonResponse(['id' => $id] + $result);
             $this->app->close();
         } catch (\Throwable $exception) {
-            $this->app->setHeader('status', $exception->getCode() >= 400 ? (string) $exception->getCode() : '500');
+            $code = $exception->getCode() >= 400 ? (int) $exception->getCode() : 500;
+            $this->app->setHeader('status', (string) $code, true);
+            http_response_code($code);
 
             echo new JsonResponse($exception);
             $this->app->close();

@@ -2,6 +2,19 @@
  * Footprint — minimal styles; leans on the Joomla admin template.
  */
 
+/* Joomla's Atum admin template redefines .btn-primary's background for dark
+ * mode (--btn-primary-bg) but never does the same for .btn-outline-primary's
+ * active/hover state (--btn-active-bg / --btn-hover-bg stay pinned to the
+ * light-mode navy). Align our outline-toggle buttons to the same colour
+ * .btn-primary already uses, so both read as the same "selected" blue.
+ */
+[data-bs-theme="dark"] .com-footprint .btn-outline-primary {
+    --btn-active-bg: var(--btn-primary-bg);
+    --btn-active-border-color: var(--btn-primary-bg);
+    --btn-hover-bg: var(--btn-primary-bg);
+    --btn-hover-border-color: var(--btn-primary-bg);
+}
+
 .com-footprint .card {
     margin-bottom: 1rem;
 }

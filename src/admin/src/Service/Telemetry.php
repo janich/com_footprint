@@ -49,6 +49,8 @@ class Telemetry
         'offline', 'sef', 'caching', 'cache_handler', 'session_handler', 'gzip',
     ];
 
+    private ?string $version = null;
+
     public function __construct(private DatabaseInterface $db)
     {
     }
@@ -124,7 +126,7 @@ class Telemetry
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order([$this->db->quoteName('created') . ' DESC', $this->db->quoteName('id') . ' DESC']);
 
         return $this->db->setQuery($query, 0, 1)->loadObject() ?: null;
     }
@@ -213,9 +215,11 @@ class Telemetry
      */
     private function environment(): string
     {
-        $host = strtolower((string) parse_url(Uri::root(), PHP_URL_HOST));
+        // parse_url keeps the brackets around an IPv6 literal; strip them so
+        // "::1" is recognised as loopback and compares like any other host.
+        $host = trim(strtolower((string) parse_url(Uri::root(), PHP_URL_HOST)), '[]');
 
-        if ($host === 'localhost' || $host === '127.0.0.1' || preg_match('/\.(test|local|localhost)$/', $host)) {
+        if (\in_array($host, ['localhost', '127.0.0.1', '::1'], true) || preg_match('/\.(test|local|localhost)$/', $host)) {
             return 'local';
         }
 
@@ -270,7 +274,7 @@ class Telemetry
             ->from($this->db->quoteName('#__footprint_scans'))
             ->where($this->db->quoteName('state') . ' = :state')
             ->bind(':state', $state)
-            ->order($this->db->quoteName('id') . ' DESC');
+            ->order([$this->db->quoteName('created') . ' DESC', $this->db->quoteName('id') . ' DESC']);
 
         return array_map(
             static fn (string $created) => substr($created, 0, 10),
@@ -305,12 +309,20 @@ class Telemetry
         return (int) $this->db->setQuery($query)->loadResult();
     }
 
+    /**
+     * Read from the manifest once: a send asks for it twice, for the payload
+     * and for the User-Agent.
+     */
     private function componentVersion(): string
     {
-        $manifest = \Joomla\CMS\Installer\Installer::parseXMLInstallFile(
-            JPATH_ADMINISTRATOR . '/components/com_footprint/footprint.xml'
-        ) ?: [];
+        if ($this->version === null) {
+            $manifest = \Joomla\CMS\Installer\Installer::parseXMLInstallFile(
+                JPATH_ADMINISTRATOR . '/components/com_footprint/footprint.xml'
+            ) ?: [];
 
-        return (string) ($manifest['version'] ?? '');
+            $this->version = (string) ($manifest['version'] ?? '');
+        }
+
+        return $this->version;
     }
 }

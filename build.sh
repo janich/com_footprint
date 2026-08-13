@@ -31,11 +31,11 @@ trap 'rm -rf "$BUILD"' EXIT
 cp "$MANIFEST" "$BUILD/footprint.xml"
 cp -R "$SRC/admin" "$BUILD/admin"
 
-# One licence file in the repo, copied where the package needs it: the zip
-# root for anyone inspecting it, and the component folder because every
-# source header says "see LICENSE.txt".
+# src/admin carries its own copy because the manifest lists it — an installed
+# site must have the file its headers point at, and a discover-install from
+# source must not reference a file that is only ever added at build time.
+# This one is the zip-root copy, for anyone inspecting the package.
 cp "$ROOT/LICENSE.txt" "$BUILD/LICENSE.txt"
-cp "$ROOT/LICENSE.txt" "$BUILD/admin/LICENSE.txt"
 cp -R "$SRC/site" "$BUILD/site"
 cp -R "$SRC/media" "$BUILD/media"
 
