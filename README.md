@@ -58,8 +58,11 @@ Site name, site URL, e-mail addresses, usernames, table names, file paths, and e
 
 ## Installation
 
-Download the package from the releases page and install it through
-*System → Install → Extensions*, then open *Components → Footprint*.
+**[⬇ Download the latest release](https://github.com/janich/com_footprint/releases/latest)**
+
+Install the `com_footprint-<version>.zip` through *System → Install → Extensions*,
+then open *Components → Footprint*. Every release is listed on the
+[releases page](https://github.com/janich/com_footprint/releases).
 
 New versions are announced inside Joomla, under *System → Update → Extensions*,
 like any other extension. Installations of 1.0.0 predate the update server and
